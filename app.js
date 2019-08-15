@@ -32,15 +32,15 @@ io.on("connection", function (socket) {
     
     //clients[recebido].emit("update", "testando");
     
-    console.log("//\\");
+    //console.log("//\\");
     try {
       //console.log(">>>>>>>>>>" + clients[socket.id].apelido);
     } catch{ }
-    console.log("//\\");
+    //console.log("//\\");
 
     for (unico in clients) {
       
-      console.log(clients[unico].apelido);
+    //  console.log(clients[unico].apelido);
       
     }
       
@@ -50,7 +50,8 @@ io.on("connection", function (socket) {
   });
 
   socket.on("update", function(result) {
-    console.log(result);
+    obj = JSON.parse(result);
+    console.log(obj);
   });
 
   socket.on("imagem", function(from) {
