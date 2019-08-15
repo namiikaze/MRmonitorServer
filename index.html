@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple chat</title>
+
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+            background: #ededed;
+            font-family: 'Arial', sans-serif;
+            font-size: 13px;
+        }
+
+        #logo {
+            text-align: center;
+
+        }
+
+        #logo .titulo {
+
+            color: white;
+            font-size: 40px;
+
+        }
+
+        #logo #dataTime {
+            color: whitesmoke;
+            font-size: 25px;
+
+        }
+
+        .menu {
+            overflow: hidden;
+            height: 150px;
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            padding-top: 30px;
+
+            padding-right: 15px;
+            background: rgb(0, 0, 0);
+            z-index: 100;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
+
+
+
+</head>
+
+<body>
+
+
+    <img id="img2" width="100%">
+    <hr>
+    <div class="usuarios">
+
+    </div>
+</body>
+
+
+<script src="http://192.168.0.16:3000/socket.io/socket.io.js"></script>
+
+<script>
+
+
+    $(document).ready(function () {
+        var socket = io.connect("http://192.168.0.16:3000");
+        
+        socket.emit("entrar","administrador");
+
+        socket.on('users', function (up) {
+            console.log(up);
+        });
+        
+        
+        socket.on('connect', () => {
+            socket.emit("entrar","administrador");
+            console.log("Conectado ao servidor");
+        });
+        
+        socket.on('imageConversionByServer', function (data) {
+            $("#img2").attr("src", data);
+        });
+
+        socket.on('te', function (up) {
+            $('#img2').attr('src', `data:image/png;base64,${up}`);
+        });
+
+
+        socket.on('update', function (up) {
+
+            console.log(up);
+
+
+        });
+
+    });
+
+</script>
+
+
+</html>
