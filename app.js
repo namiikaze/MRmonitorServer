@@ -12,65 +12,61 @@ app.get("/", function(req, res) {
 });
 
 var clients = [];
-var i = 0;
-io.on("connection", function (socket) {
-  
+var usuarios = [];
+io.on("connection", function(socket) {
+  socket.emit("obterInfoMachine", "get");
   socket.emit("update", "global");
 
-  socket.on("entrar", function (recebido) {
-    console.log("Conexão recebida de: " + socket.id);
-
-    socket.apelido = recebido;
-    clients[recebido] = socket;
-    //clients[socket.id].apelido = "teste";
-    //console.log(clients[socket.id].apelido + i);
-    i++;
-    
-    //clients[recebido].nome = socket.id;
-    //console.log('a:' + clients[recebido].nome);
-
-    
-    //clients[recebido].emit("update", "testando");
-    
-    //console.log("//\\");
-    try {
-      //console.log(">>>>>>>>>>" + clients[socket.id].apelido);
-    } catch{ }
-    //console.log("//\\");
-
-    for (unico in clients) {
-      
-    //  console.log(clients[unico].apelido);
-      
-    }
-      
-    
-
-
+  socket.on("entrar", function(recebido) {
+    console.log(
+      "Conexão recebida de: " + recebido + " Host" + socket.handshake.address
+    );
+    socket.Apelido = recebido;
   });
 
-  socket.on("update", function(result) {
-    obj = JSON.parse(result);
-    console.log(obj);
+  socket.on("infoMachine", function(retorno) {
+    var json = JSON.parse(retorno);
+
+    socket.IP = json.IP;
+    socket.Usuario = json.Usuario;
+    socket.NomeRede = json.NomeRede;
+    clients[socket.id] = socket;
+    attUsuarios();
+    console.table(usuarios);
+  });
+  socket.on("solicitarPrint", function(result) {
+    io.emit("obterPrint", "get");
+    
+    
+    
   });
 
-  socket.on("imagem", function(from) {
-    io.emit("te", from);
-    try {
-      
-      //clients['administrador'].emit("update", clients[].nome);
-      
-    }catch{
-
-     }
+  socket.on("print", function(from) {
+    io.emit("printscreen", from);
   });
 
   socket.on("disconnect", function() {
-    console.log(`Desconectado: ${socket.apelido}`);
-    delete clients[socket.apelido];
-    
+    console.log(`Desconectado: ${socket.Apelido}`);
+    delete clients[socket.id];
+    attUsuarios();
   });
 });
+
+function attUsuarios() {
+  usuarios = [];
+    for (indice in clients) {
+      
+      let infoJson = {
+        "ID": clients[indice].id,
+        "IP": clients[indice].IP,
+        "Apelido": clients[indice].Apelido,
+        "Usuario": clients[indice].Usuario,
+        "NomeRede":clients[indice].NomeRede,
+      };
+      usuarios.push(infoJson);
+  }
+  io.emit("update", usuarios);
+}
 
 app.use(express.static(__dirname + "/node_modules"));
 app.get("/", function(req, res) {
@@ -80,16 +76,6 @@ app.get("/", function(req, res) {
 
 for (var i = 0; i < 60; i++) console.log(" ");
 
-const input = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-const perguntar = pergunta =>
-  new Promise(resolver =>
-    input.question(pergunta, resposta => resolver(resposta))
-  );
-
 http.listen(3000, function() {
-  console.log("listening on port 3000");
+  console.log("Server iniciando na porta: 3000");
 });

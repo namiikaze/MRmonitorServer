@@ -74,19 +74,24 @@
     <hr>
     <div class="usuarios">
 
-    </div>
+    </div>  
+    <button onclick="requisitarPrint()"> requisitar print</button>
 </body>
 
 
 <script src="http://192.168.0.16:3000/socket.io/socket.io.js"></script>
 
 <script>
+    function requisitarPrint(){
+            socket.emit("solicitarPrint","get")
+        }
 
-
-    $(document).ready(function () {
+    
         var socket = io.connect("http://192.168.0.16:3000");
         
         socket.emit("entrar","administrador");
+
+        
 
         socket.on('users', function (up) {
             console.log(up);
@@ -102,7 +107,7 @@
             $("#img2").attr("src", data);
         });
 
-        socket.on('te', function (up) {
+        socket.on('printscreen', function (up) {
             $('#img2').attr('src', `data:image/png;base64,${up}`);
         });
 
@@ -114,7 +119,7 @@
 
         });
 
-    });
+    
 
 </script>
 
