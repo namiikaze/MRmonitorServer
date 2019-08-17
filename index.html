@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Simple chat</title>
+    <title>Monitor</title>
 
     <style>
         body {
@@ -47,18 +47,18 @@
         }
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css'>
-    <link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css'>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
 
+
+
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/global.css">
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
@@ -69,55 +69,95 @@
 
 <body>
 
+    <div class="main-container">
+        <img class="logo" src="assets/monitor.png" alt="logo" />
+        <ul class="ull">
+        </ul>
+        <div class="empty">Acabou :( </div>
 
+
+
+    </div>
     <img id="img2" width="100%">
     <hr>
     <div class="usuarios">
 
-    </div>  
+    </div>
     <button onclick="requisitarPrint()"> requisitar print</button>
+    <hr>
 </body>
 
 
 <script src="http://192.168.0.16:3000/socket.io/socket.io.js"></script>
 
 <script>
-    function requisitarPrint(){
-            socket.emit("solicitarPrint","get")
-        }
-
     
-        var socket = io.connect("http://192.168.0.16:3000");
+    var users = [];
+    
+    
+    function attClients(){
+        $(".clients").remove();
+        console.log(users.length);  
+        for(indice in users){
+        $('.ull').append(`<li class="clients">
+                <img src="assets/client.png" />
+                <footer>
+                    <strong>${users[indice].Usuario}</strong>
+                    <p>Apelido:${users[indice].Apelido}</p>
+                    <p>Rede:${users[indice].NomeRede}</p>
+                    <p>IP:${users[indice].IP}</p>
+                    <p>Atividade:<span id="atv${users[indice].ID}"></span></p>
+
+                </footer>
+                <div class="buttons">
+                    <button type="button" onclick="requisitarPrint('${users[indice].ID}')">
+                        print
+                    </button>
+                    <button type="button">
+                        like
+                    </button>
+                </div>
+
+            </li>`);   
+        }
+    }
+
+    function requisitarPrint(id) {
+        socket.emit("solicitarPrint", id)
         
-        socket.emit("entrar","administrador");
-
-        
-
-        socket.on('users', function (up) {
-            console.log(up);
-        });
-        
-        
-        socket.on('connect', () => {
-            socket.emit("entrar","administrador");
-            console.log("Conectado ao servidor");
-        });
-        
-        socket.on('imageConversionByServer', function (data) {
-            $("#img2").attr("src", data);
-        });
-
-        socket.on('printscreen', function (up) {
-            $('#img2').attr('src', `data:image/png;base64,${up}`);
-        });
+    }
 
 
-        socket.on('update', function (up) {
+    var socket = io.connect("http://192.168.0.16:3000");
 
-            console.log(up);
+    socket.emit("entrar", "administrador");
 
 
-        });
+
+    socket.on('users', function (recebido) {
+        users = recebido;
+        console.log(recebido);
+        attClients();
+    });
+
+
+    socket.on('connect', () => {
+        socket.emit("entrar", "administrador");
+        console.log("Conectado ao servidor");
+    });
+
+    socket.on('printscreen', function (up) {
+        $('#img2').attr('src', `data:image/png;base64,${up}`);
+    });
+
+    socket.on("atividadeUsuario", function(atividade,id){
+        console.log(atividade, id);
+        $('#atv'+id).text(atividade);
+    });
+
+    socket.on('update', function (up) {
+        console.log(up);
+    });
 
     
 

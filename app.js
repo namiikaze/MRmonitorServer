@@ -16,7 +16,7 @@ var usuarios = [];
 io.on("connection", function(socket) {
   socket.emit("obterInfoMachine", "get");
   socket.emit("update", "global");
-
+  attUsuarios();
   socket.on("entrar", function(recebido) {
     console.log(
       "Conexão recebida de: " + recebido + " Host" + socket.handshake.address
@@ -34,11 +34,11 @@ io.on("connection", function(socket) {
     attUsuarios();
     console.table(usuarios);
   });
-  socket.on("solicitarPrint", function(result) {
-    io.emit("obterPrint", "get");
-    
-    
-    
+  socket.on("solicitarPrint", function(id) {    
+    clients[id].emit("obterPrint", "get");
+  });
+  socket.on("atividade", function(atv){
+    io.emit("atividadeUsuario",atv,socket.id);
   });
 
   socket.on("print", function(from) {
@@ -65,7 +65,7 @@ function attUsuarios() {
       };
       usuarios.push(infoJson);
   }
-  io.emit("update", usuarios);
+  io.emit("users", usuarios);
 }
 
 app.use(express.static(__dirname + "/node_modules"));
