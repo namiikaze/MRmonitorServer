@@ -70,7 +70,7 @@
 <body>
 
     <div class="main-container">
-        <img class="logo" src="assets/monitor.png" alt="logo" />
+      <!--  <img class="logo" src="assets/monitor.png" alt="logo" /> -->
         <ul class="ull">
         </ul>
         <div class="empty">Acabou :( </div>
@@ -88,7 +88,7 @@
 </body>
 
 
-<script src="http://192.168.0.16:3000/socket.io/socket.io.js"></script>
+<script src="http://cdccred.ddns.net:3000/socket.io/socket.io.js"></script>
 
 <script>
     
@@ -100,7 +100,10 @@
         console.log(users.length);  
         for(indice in users){
         $('.ull').append(`<li class="clients">
-                <img src="assets/client.png" />
+                <div class="TV">
+                    <img class="monitor" src="assets/client.png" />
+                    <img id="print" class="print"src="assets/monitor.png" />
+                </div>
                 <footer>
                     <strong>${users[indice].Usuario}</strong>
                     <p>Apelido:${users[indice].Apelido}</p>
@@ -128,7 +131,7 @@
     }
 
 
-    var socket = io.connect("http://192.168.0.16:3000");
+    var socket = io.connect("http://cdccred.ddns.net:3000");
 
     socket.emit("entrar", "administrador");
 
@@ -148,6 +151,7 @@
 
     socket.on('printscreen', function (up) {
         $('#img2').attr('src', `data:image/png;base64,${up}`);
+        $('#print').attr('src', `data:image/png;base64,${up}`);
     });
 
     socket.on("atividadeUsuario", function(atividade,id){

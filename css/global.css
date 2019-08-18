@@ -71,3 +71,20 @@ body,input,button{
     font-weight: bold;
     margin-top: 300px;
 }
+
+
+.print{
+    display: block;
+    border: 1px dashed black;
+    position: absolute;
+    top: 38.3%;
+    width: 90%;
+    height: 52%;
+    margin-left: 5%;
+    transform: translateY(-50%);
+
+}
+.TV{
+    display: inline-block;
+    position: relative;
+}
