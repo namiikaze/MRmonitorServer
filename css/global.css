@@ -75,7 +75,7 @@ body,input,button{
 
 .print{
     display: block;
-    border: 1px dashed black;
+    border: 2px solid black;
     position: absolute;
     top: 38.3%;
     width: 90%;
@@ -88,3 +88,41 @@ body,input,button{
     display: inline-block;
     position: relative;
 }
+
+
+/*alert*/
+.alert-container{
+    height: 100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+.alert-container .inputAlert{
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+.alert-container .inputAlert input{
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 48px;
+    font-size: 16px;
+    color: #666; 
+}
+.alert-container .inputAlert input::placeholder{
+    color: #999;
+}
+.alert-container .inputAlert button{
+    margin-top:10px;
+    border: 0px;
+    border-radius: 4px;
+    height: 48px;
+    font-size: 16px;
+    background: #df4723;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+/**/

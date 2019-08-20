@@ -30,19 +30,27 @@ io.on("connection", function(socket) {
     socket.IP = json.IP;
     socket.Usuario = json.Usuario;
     socket.NomeRede = json.NomeRede;
+    socket.Version = json.Version;
     clients[socket.id] = socket;
     attUsuarios();
     console.table(usuarios);
   });
-  socket.on("solicitarPrint", function(id) {    
-    clients[id].emit("obterPrint", "get");
+  socket.on("enviarAlert", function (msg,id) {
+    try {
+      clients[id].emit("alert", msg);
+    } catch{ }
+  });
+  socket.on("solicitarPrint", function (id) {
+    try {
+      clients[id].emit("obterPrint", "get");
+    } catch{ }
   });
   socket.on("atividade", function(atv){
     io.emit("atividadeUsuario",atv,socket.id);
   });
 
   socket.on("print", function(from) {
-    io.emit("printscreen", from);
+    io.emit("printscreen", from,socket.id);
   });
 
   socket.on("disconnect", function() {
@@ -62,6 +70,7 @@ function attUsuarios() {
         "Apelido": clients[indice].Apelido,
         "Usuario": clients[indice].Usuario,
         "NomeRede":clients[indice].NomeRede,
+        "Version":clients[indice].Version,
       };
       usuarios.push(infoJson);
   }

@@ -59,6 +59,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/modal.css">
 
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
@@ -68,70 +69,109 @@
 </head>
 
 <body>
+    <div id="main">
+        <div class="main-container">
+            <!--  <img class="logo" src="assets/monitor.png" alt="logo" /> -->
 
-    <div class="main-container">
-      <!--  <img class="logo" src="assets/monitor.png" alt="logo" /> -->
-        <ul class="ull">
-        </ul>
-        <div class="empty">Acabou :( </div>
+            <ul class="ull">
+            </ul>
+            <!-- <div class="empty">Acabou :( </div> -->
 
 
 
+        </div>
+        <img id="img2" width="100%">
+        <hr>
+        <div class="usuarios">
+
+        </div>
+        <button onclick="requisitarPrint()"> requisitar print</button>
+        <hr>
+
+
+        <!-- The Modal print usuario -->
+        <div id="myModal" class="modal">
+            <span class="close">&times;</span>
+            <img class="modal-content" id="img01">
+            <div id="caption"></div>
+        </div>
     </div>
-    <img id="img2" width="100%">
-    <hr>
-    <div class="usuarios">
 
+    <div id="alerta">
+        <div>
+            <div class="alert-container">
+                <div class="inputAlert">
+                    <input placeholder="Digite Seu alerta aqui" id="msgAlert" />
+                    <button id="enviarAlert" onclick="enviarAlerta()">enviar</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <button onclick="requisitarPrint()"> requisitar print</button>
-    <hr>
+
+
 </body>
 
 
-<script src="http://cdccred.ddns.net:3000/socket.io/socket.io.js"></script>
+
+
+<script language="javascript">
+    
+    function pegaDominio() {
+        var url = location.href;
+        url = url.split("/");
+        return url[2];
+    }
+    var url = pegaDominio();
+</script>
+
+<script src="http://192.168.0.16:3000/socket.io/socket.io.js"></script>
+
 
 <script>
-    
+    //$('#main').hide();
+
+
     var users = [];
-    
-    
-    function attClients(){
+
+
+    function attClients() {
         $(".clients").remove();
-        console.log(users.length);  
-        for(indice in users){
-        $('.ull').append(`<li class="clients">
+        console.log(users.length);
+        for (indice in users) {
+            $('.ull').append(`<li class="clients">
                 <div class="TV">
                     <img class="monitor" src="assets/client.png" />
-                    <img id="print" class="print"src="assets/monitor.png" />
+                    <img id="print${users[indice].ID}" class="print"src="assets/win.jpg" onclick="abrirModal(this)" alt="Imagem da tela do usuario"/>
                 </div>
                 <footer>
                     <strong>${users[indice].Usuario}</strong>
-                    <p>Apelido:${users[indice].Apelido}</p>
+                    <p>Indentificação:${users[indice].Apelido}</p>
                     <p>Rede:${users[indice].NomeRede}</p>
                     <p>IP:${users[indice].IP}</p>
+                    <p>Versão:${users[indice].Version}</p>
                     <p>Atividade:<span id="atv${users[indice].ID}"></span></p>
 
                 </footer>
                 <div class="buttons">
                     <button type="button" onclick="requisitarPrint('${users[indice].ID}')">
-                        print
+                        PRINT
                     </button>
-                    <button type="button">
-                        like
+                    <button type="button" onclick="setarAlerta('${users[indice].ID}')">
+                         ALERTA
                     </button>
                 </div>
 
-            </li>`);   
+            </li>`);
         }
     }
 
     function requisitarPrint(id) {
         socket.emit("solicitarPrint", id)
-        
+
     }
 
 
-    var socket = io.connect("http://cdccred.ddns.net:3000");
+    var socket = io.connect("http://192.168.0.16:3000");
 
     socket.emit("entrar", "administrador");
 
@@ -149,23 +189,24 @@
         console.log("Conectado ao servidor");
     });
 
-    socket.on('printscreen', function (up) {
-        $('#img2').attr('src', `data:image/png;base64,${up}`);
-        $('#print').attr('src', `data:image/png;base64,${up}`);
+    socket.on('printscreen', function (img, id) {
+        $('#img2').attr('src', `data:image/png;base64,${img}`);
+        $('#print' + id).attr('src', `data:image/png;base64,${img}`);
     });
 
-    socket.on("atividadeUsuario", function(atividade,id){
+    socket.on("atividadeUsuario", function (atividade, id) {
         console.log(atividade, id);
-        $('#atv'+id).text(atividade);
+        $('#atv' + id).text(atividade);
     });
 
     socket.on('update', function (up) {
         console.log(up);
     });
 
-    
+
 
 </script>
-
+<script src='js/modal.js'></script>
+<script src="js/alert.js"></script>
 
 </html>
