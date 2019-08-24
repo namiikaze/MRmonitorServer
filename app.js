@@ -1,5 +1,6 @@
 var fs = require("fs");
 const readline = require("readline");
+var path = require('path')
 
 /* HTTP and Socket*/
 var app = require("express")();
@@ -10,10 +11,14 @@ var express = require("express");
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html");
 });
+app.use(express.static(path.join(__dirname, '/')));
 
 var clients = [];
 var usuarios = [];
-io.on("connection", function(socket) {
+io.on("connection", function (socket) {
+
+  socket.emit("ClientId", socket.id);
+
   socket.emit("obterInfoMachine", "get");
   socket.emit("update", "global");
   attUsuarios();
@@ -21,6 +26,7 @@ io.on("connection", function(socket) {
     console.log(
       "Conexão recebida de: " + recebido + " Host" + socket.handshake.address
     );
+    
     socket.Apelido = recebido;
   });
 
@@ -28,18 +34,34 @@ io.on("connection", function(socket) {
     var json = JSON.parse(retorno);
 
     socket.IP = json.IP;
+    
     socket.Usuario = json.Usuario;
     socket.NomeRede = json.NomeRede;
     socket.Version = json.Version;
+    socket.NomeUsuario = json.Nome;
+    
     clients[socket.id] = socket;
     attUsuarios();
-    console.table(usuarios);
+    //console.table(usuarios);
+    
+  });
+  socket.on("enviarNome", function (msg,id) {
+    try {
+      clients[id].emit("setarNome", msg);
+    } catch{ }
   });
   socket.on("enviarAlert", function (msg,id) {
     try {
       clients[id].emit("alert", msg);
     } catch{ }
   });
+  
+  socket.on("setarProxy", function (status, id) {
+    try {
+        clients[id].emit("proxy", status);
+    }catch { }
+  });
+
   socket.on("solicitarPrint", function (id) {
     try {
       clients[id].emit("obterPrint", "get");
@@ -53,11 +75,40 @@ io.on("connection", function(socket) {
     io.emit("printscreen", from,socket.id);
   });
 
+
+  socket.on("EnviarMensagem", function (msg) {
+    var jsonMsg = JSON.parse(msg);
+    
+    if (jsonMsg.destino == "all") {
+      console.log(`[Mensagel Global] ${socket.NomeUsuario} diz: ${jsonMsg.mensagem}`);
+      var enviar = {};
+      enviar.IDremetente = socket.id;
+      enviar.NomeRemetente = clients[socket.id].NomeUsuario;
+      enviar.IDdestino = jsonMsg.destino;
+      enviar.mensagem = jsonMsg.mensagem;
+      
+      io.emit("MensagemRecebida",enviar);
+    } else {
+      try {
+        console.log(`[Mensagem Privada] ${socket.NomeUsuario} diz: ${jsonMsg.mensagem}`);
+      }
+      catch{ };
+    }
+      
+    
+
+    
+    
+  })
+  
+
   socket.on("disconnect", function() {
     console.log(`Desconectado: ${socket.Apelido}`);
     delete clients[socket.id];
     attUsuarios();
   });
+
+
 });
 
 function attUsuarios() {
@@ -69,6 +120,7 @@ function attUsuarios() {
         "IP": clients[indice].IP,
         "Apelido": clients[indice].Apelido,
         "Usuario": clients[indice].Usuario,
+        "NomeUsuario": clients[indice].NomeUsuario,
         "NomeRede":clients[indice].NomeRede,
         "Version":clients[indice].Version,
       };

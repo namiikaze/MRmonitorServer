@@ -4,47 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Monitor</title>
-
     <style>
         body {
             margin: 0px;
             padding: 0px;
             background: #ededed;
             font-family: 'Arial', sans-serif;
-            font-size: 13px;
+            font-size: 12px;
         }
 
-        #logo {
-            text-align: center;
-
-        }
-
-        #logo .titulo {
-
-            color: white;
-            font-size: 40px;
-
-        }
-
-        #logo #dataTime {
-            color: whitesmoke;
-            font-size: 25px;
-
-        }
-
-        .menu {
-            overflow: hidden;
-            height: 150px;
-            top: 0px;
-            left: 0px;
-            right: 0px;
-            width: 100%;
-            padding-top: 30px;
-
-            padding-right: 15px;
-            background: rgb(0, 0, 0);
-            z-index: 100;
-        }
+        
     </style>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
@@ -97,25 +66,29 @@
         </div>
     </div>
 
-    <div id="alerta">
+    <div id="enviar">
         <div>
-            <div class="alert-container">
-                <div class="inputAlert">
-                    <input placeholder="Digite Seu alerta aqui" id="msgAlert" />
-                    <button id="enviarAlert" onclick="enviarAlerta()">enviar</button>
+
+            <div class="enviar-container">
+
+                <div class="inputEnviar">
+                    <span class="titulo">Titulo</span>
+                    <input placeholder="Digite aqui" id="msgAlert" />
+                    <button style="background: green" id="enviarAlert" onclick="enviar()">ENVIAR</button>
+                    <button style="background: #df4723;" id="enviarAlert" onclick="cancelar()">CANCELAR</button>
                 </div>
             </div>
         </div>
     </div>
 
 
+    <div id="snackbar">Feito!</div>
+
 </body>
 
 
 
-
 <script language="javascript">
-    
     function pegaDominio() {
         var url = location.href;
         url = url.split("/");
@@ -144,8 +117,9 @@
                     <img id="print${users[indice].ID}" class="print"src="assets/win.jpg" onclick="abrirModal(this)" alt="Imagem da tela do usuario"/>
                 </div>
                 <footer>
-                    <strong>${users[indice].Usuario}</strong>
-                    <p>Indentificação:${users[indice].Apelido}</p>
+                    <div class="titulo-alinhado"> <strong>${users[indice].NomeUsuario}</strong> </div>
+                    <hr>
+                    <p>Usuario:${users[indice].Usuario}</p>
                     <p>Rede:${users[indice].NomeRede}</p>
                     <p>IP:${users[indice].IP}</p>
                     <p>Versão:${users[indice].Version}</p>
@@ -156,9 +130,17 @@
                     <button type="button" onclick="requisitarPrint('${users[indice].ID}')">
                         PRINT
                     </button>
-                    <button type="button" onclick="setarAlerta('${users[indice].ID}')">
-                         ALERTA
-                    </button>
+                    <div class="dropdown">
+                        <button type="button" >
+                                MAIS
+                        </button>
+                        <div class="dropdown-content">
+                            <span class="itens-drop" onclick="setarAlerta('${users[indice].ID}')">Alerta!</span>
+                            <span class="itens-drop" onclick="setarNome('${users[indice].ID}')">Alterar Nome</span>
+                            <span class="itens-drop" onclick="proxy('false','${users[indice].ID}')">Desbloquear NET</span>
+                            <span class="itens-drop" onclick="proxy('true', '${users[indice].ID}')">Bloquear NET</span>
+                        </div>  
+                    </div>
                 </div>
 
             </li>`);
@@ -167,19 +149,18 @@
 
     function requisitarPrint(id) {
         socket.emit("solicitarPrint", id)
-
     }
-
+    function proxy(status,id){
+        socket.emit("setarProxy", status,id);
+        aviso();
+    }
 
     var socket = io.connect("http://192.168.0.16:3000");
 
     socket.emit("entrar", "administrador");
 
-
-
     socket.on('users', function (recebido) {
         users = recebido;
-        console.log(recebido);
         attClients();
     });
 
@@ -195,12 +176,18 @@
     });
 
     socket.on("atividadeUsuario", function (atividade, id) {
-        console.log(atividade, id);
         $('#atv' + id).text(atividade);
     });
 
     socket.on('update', function (up) {
-        console.log(up);
+      //  console.log(up);
+    });
+    
+    socket.on('MensagemRecebida', function (recebido) {
+        //console.table(recebido);
+        if(recebido.IDdestino  == "all"){
+            console.log(`[GLOBAL] ${recebido.NomeRemetente} diz: ${recebido.mensagem} `);
+        }
     });
 
 
