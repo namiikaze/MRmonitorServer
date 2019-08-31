@@ -17,7 +17,8 @@ var clients = [];
 var usuarios = [];
 io.on("connection", function (socket) {
 
-  socket.emit("ClientId", socket.id);
+
+  socket.emit("ClientId", socket.io);
 
   socket.emit("obterInfoMachine", "get");
   socket.emit("update", "global");
@@ -76,31 +77,6 @@ io.on("connection", function (socket) {
   });
 
 
-  socket.on("EnviarMensagem", function (msg) {
-    var jsonMsg = JSON.parse(msg);
-    
-    if (jsonMsg.destino == "all") {
-      console.log(`[Mensagel Global] ${socket.NomeUsuario} diz: ${jsonMsg.mensagem}`);
-      var enviar = {};
-      enviar.IDremetente = socket.id;
-      enviar.NomeRemetente = clients[socket.id].NomeUsuario;
-      enviar.IDdestino = jsonMsg.destino;
-      enviar.mensagem = jsonMsg.mensagem;
-      
-      io.emit("MensagemRecebida",enviar);
-    } else {
-      try {
-        console.log(`[Mensagem Privada] ${socket.NomeUsuario} diz: ${jsonMsg.mensagem}`);
-      }
-      catch{ };
-    }
-      
-    
-
-    
-    
-  })
-  
 
   socket.on("disconnect", function() {
     console.log(`Desconectado: ${socket.Apelido}`);
